@@ -1,245 +1,309 @@
 [
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_dailyReward",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "initialOwner",
-                "type": "address"
-            }
+  {
+    "inputs": [
+      {"internalType": "uint256", "name": "_dailyReward", "type": "uint256"},
+      {"internalType": "address", "name": "initialOwner", "type": "address"}
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {"inputs": [], "name": "AlreadyCompletedToday", "type": "error"},
+  {"inputs": [], "name": "EmptyTaskName", "type": "error"},
+  {"inputs": [], "name": "InsufficientContractBalance", "type": "error"},
+  {"inputs": [], "name": "InvalidAddress", "type": "error"},
+  {"inputs": [], "name": "InvalidDaysRequired", "type": "error"},
+  {"inputs": [], "name": "NoTasksSet", "type": "error"},
+  {"inputs": [], "name": "NotAllTasksCompleted", "type": "error"},
+  {
+    "inputs": [{"internalType": "address", "name": "owner", "type": "address"}],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {"inputs": [], "name": "RewardAlreadyClaimed", "type": "error"},
+  {"inputs": [], "name": "RewardsPaused", "type": "error"},
+  {"inputs": [], "name": "TaskNotFound", "type": "error"},
+  {"inputs": [], "name": "TransferFailed", "type": "error"},
+  {
+    "anonymous": false,
+    "inputs": [{"indexed": false, "internalType": "uint256", "name": "newRate", "type": "uint256"}],
+    "name": "DailyRewardChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "address", "name": "previousOwner", "type": "address"},
+      {"indexed": true, "internalType": "address", "name": "newOwner", "type": "address"}
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "address", "name": "user", "type": "address"},
+      {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"},
+      {"indexed": false, "internalType": "uint256", "name": "dayNumber", "type": "uint256"},
+      {"indexed": false, "internalType": "uint256", "name": "newStreak", "type": "uint256"}
+    ],
+    "name": "RewardClaimed",
+    "type": "event"
+  },
+  {"anonymous": false, "inputs": [], "name": "RewardsPausedEvent", "type": "event"},
+  {"anonymous": false, "inputs": [], "name": "RewardsUnpausedEvent", "type": "event"},
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": false, "internalType": "uint256", "name": "daysRequired", "type": "uint256"},
+      {"indexed": false, "internalType": "uint256", "name": "bonusPercent", "type": "uint256"}
+    ],
+    "name": "StreakBonusSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "address", "name": "user", "type": "address"},
+      {"indexed": true, "internalType": "uint256", "name": "taskId", "type": "uint256"},
+      {"indexed": false, "internalType": "string", "name": "name", "type": "string"}
+    ],
+    "name": "TaskAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "address", "name": "user", "type": "address"},
+      {"indexed": true, "internalType": "uint256", "name": "taskId", "type": "uint256"},
+      {"indexed": false, "internalType": "uint256", "name": "dayNumber", "type": "uint256"}
+    ],
+    "name": "TaskCompleted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "address", "name": "user", "type": "address"},
+      {"indexed": true, "internalType": "uint256", "name": "taskId", "type": "uint256"}
+    ],
+    "name": "TaskRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "address", "name": "to", "type": "address"},
+      {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"}
+    ],
+    "name": "Withdrawn",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {"internalType": "uint256", "name": "daysRequired", "type": "uint256"},
+      {"internalType": "uint256", "name": "bonusPercent", "type": "uint256"}
+    ],
+    "name": "addStreakBonus",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "string", "name": "name", "type": "string"}],
+    "name": "addTask",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "claimReward",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "clearStreakBonuses",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "taskId", "type": "uint256"}],
+    "name": "completeTask",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "dailyReward",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "_streak", "type": "uint256"}],
+    "name": "getBonusPercent",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "index", "type": "uint256"}],
+    "name": "getStreakBonusAt",
+    "outputs": [
+      {"internalType": "uint256", "name": "daysRequired", "type": "uint256"},
+      {"internalType": "uint256", "name": "bonusPercent", "type": "uint256"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getStreakBonusesCount",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "user", "type": "address"},
+      {"internalType": "uint256", "name": "taskId", "type": "uint256"}
+    ],
+    "name": "getTaskStatus",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+    "name": "getUserTaskIds",
+    "outputs": [{"internalType": "uint256[]", "name": "", "type": "uint256[]"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+    "name": "getUserTasks",
+    "outputs": [
+      {
+        "components": [
+          {"internalType": "uint256", "name": "id", "type": "uint256"},
+          {"internalType": "string", "name": "name", "type": "string"},
+          {"internalType": "bool", "name": "active", "type": "bool"},
+          {"internalType": "uint256", "name": "createdAt", "type": "uint256"}
         ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
-        "inputs": [],
-        "name": "AlreadyCompletedToday",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "EmptyTaskName",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "InsufficientContractBalance",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "InvalidAddress",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "InvalidDaysRequired",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "NoTasksSet",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "NotAllTasksCompleted",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
-            }
-        ],
-        "name": "OwnableInvalidOwner",
-        "极error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
-        ],
-        "name": "OwnableUnauthorizedAccount",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "RewardAlreadyClaimed",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "RewardsPaused",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "TaskNotFound",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "TransferFailed",
-        "type": "error"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "newRate",
-                "type": "uint256"
-            }
-        ],
-        "name": "DailyRewardChanged",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "previousOwner",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "OwnershipTransferred",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed极true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"dayNumber","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"anonymous":false,"inputs":[],"name":"RewardsPausedEvent","type":"event"},{"anonymous":false,"inputs":[],"name":"RewardsUnpausedEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"极256","name":"daysRequired","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bonusPercent","type":"uint256"}],"name":"StreakBonusSet","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"taskId","type":"uint256"},{"indexed":false,"internalType":"string","name":"name","type":"string"}],"name":"TaskAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"taskId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"dayNumber","type":"uint256"}],"name":"TaskCompleted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"taskId","type":"uint256"}],"name":"TaskRemoved","type":"极vent"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"to","极":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Withdrawn","type":"event"},{"inputs":[{"internalType":"uint256","name":"daysRequired","type":"uint256"},{"internalType":"uint256","name":"bonusPercent","type":"uint256"}],"name":"addStreakBonus","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"name","type":"string"}],"name":"addTask","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"claimReward","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"clearStreakBonuses","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"task极","type":"uint256"}],"name":"completeTask","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"dailyReward","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_streak","type":"uint256"}],"name":"getBonusPercent","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getStreakBonusAt","outputs":[{"internalType":"uint256","name":"daysRequired","type":"uint256"},{"internalType":"uint256","name":"bonusPercent","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getStreakBonusesCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"taskId","type":"uint256"}],"name":"getTaskStatus","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserTaskIds","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserTasks","outputs":[{"components":[{"internalType":"极256","name":"id","type":"uint256"},{"internalType":"string","name":"name","type":"string"},{"internalType":"bool","name":"active","type":"bool"},{"internalType":"uint256","name":"createdAt","type":"uint256"}],"internalType":"struct KeepUp.Task[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastClaimDay","outputs":[{"internalType":"uint256","name极","type":"uint256"}],"stateMutability":"view","type":"极function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"longestStreak","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"pauseRewards","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"taskId","type":"uint256"}],"name":"removeTask","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],极stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "rewardsPaused",
-                "outputs": [
-                    {
-                        "internalType": "bool",
-                        "name": "",
-                        "type": "bool"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "_dailyReward",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "setDaily极ward",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "",
-                        "type": "address"
-                    }
-                ],
-                "name": "streak",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "streakBonuses",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "daysRequired",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "bonusPercent",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "newOwner",
-                        "type": "address"
-                    }
-                ],
-                "name": "transferOwnership",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "unpauseRewards",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "to",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount极",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "withdraw",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "stateMutability": "payable",
-                "type": "receive"
-            }
-        ]
+        "internalType": "struct KeepUp.Task[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "name": "lastClaimDay",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "name": "longestStreak",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pauseRewards",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "taskId", "type": "uint256"}],
+    "name": "removeTask",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "rewardsPaused",
+    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "_dailyReward", "type": "uint256"}],
+    "name": "setDailyReward",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "name": "streak",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "name": "streakBonuses",
+    "outputs": [
+      {"internalType": "uint256", "name": "daysRequired", "type": "uint256"},
+      {"internalType": "uint256", "name": "bonusPercent", "type": "uint256"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "newOwner", "type": "address"}],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unpauseRewards",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "to", "type": "address"},
+      {"internalType": "uint256", "name": "amount", "type": "uint256"}
+    ],
+    "name": "withdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {"stateMutability": "payable", "type": "receive"}
+]

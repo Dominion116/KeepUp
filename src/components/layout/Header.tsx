@@ -40,30 +40,30 @@ const Header: React.FC<HeaderProps> = ({ walletState, walletService, className }
                             <div className="bg-muted px-3 py-1.5 rounded-full text-sm">
                                 {formatAddress(walletState.account)}
                             </div>
-                            <
+                            <Button
                                 variant="outline"
-                            size="sm"
-                            onClick={disconnectWallet}
+                                size="sm"
+                                onClick={disconnectWallet}
+                                disabled={walletState.isConnecting}
+                            >
+                                <Wallet className="w-4 h-4 mr-2" />
+                                Disconnect
+                            </Button>
+                        </div>
+                    ) : (
+                        <Button
+                            onClick={connectWallet}
                             disabled={walletState.isConnecting}
-              >
+                            className="bg-primary hover:bg-primary/90"
+                        >
                             <Wallet className="w-4 h-4 mr-2" />
-                            Disconnect
+                            {walletState.isConnecting ? 'Connecting...' : 'Connect Wallet'}
                         </Button>
+                    )}
+                </div>
             </div>
-                ) : (
-                <Button
-                    onClick={connectWallet}
-                    disabled={walletState.isConnecting}
-                    className="bg-primary hover:bg-primary/90"
-                >
-                    <Wallet className="w-4 h-4 mr-2" />
-                    {walletState.isConnecting ? 'Connecting...' : 'Connect Wallet'}
-                </Button>
-          )}
-            </div>
-        </div>
-    </header >
-  );
+        </header>
+    );
 };
 
 export default Header;

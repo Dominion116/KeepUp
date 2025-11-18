@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { Toaster } from '@/components/ui/toaster';
-import { WalletService, type WalletState } from '@/lib/walletService';
-import { useToast } from '@/hooks/use-toast';
-import Navigation from '@/components/layout/Navigation';
-import Header from '@/components/layout/Header';
-import Home from '@/pages/Home';
-import Tasks from '@/pages/Tasks';
-import Rewards from '@/pages/Rewards';
-import Profile from '@/pages/Profile';
-import Admin from '@/pages/Admin';
+import { Toaster } from './components/ui/toaster';
+import { WalletService, type WalletState } from './lib/walletService';
+import { useToast } from './hooks/use-toast';
+import Navigation from './components/layout/Navigation';
+import Header from './components/layout/Header';
+import Home from './pages/Home';
+import Tasks from './pages/Tasks';
+import Rewards from './pages/Rewards';
+import Profile from './pages/Profile';
+import Admin from './pages/Admin';
 
 const App = () => {
   const { toast } = useToast();

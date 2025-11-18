@@ -394,7 +394,9 @@ const SidebarSeparator = React.forwardRef<
             className={cn("mx-2 w-auto bg-sidebar-border", className)}
             {...props}
         />
-    })
+    )
+})
+
 SidebarSeparator.displayName = "SidebarSeparator"
 
 const SidebarContent = React.forwardRef<

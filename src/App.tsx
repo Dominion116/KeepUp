@@ -38,13 +38,13 @@ const App = () => {
   }, [toast]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header 
         walletState={walletState} 
         walletService={walletServiceRef.current} 
       />
       
-      <main className="pb-16 md:pb-0">
+      <main className="flex-1 pb-16 md:pb-0 overflow-auto">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/tasks" element={<Tasks />} />

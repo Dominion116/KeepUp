@@ -24,7 +24,7 @@ export default defineConfig({
     include: [
       'buffer',
       'process/browser',
+      'lucide-react',
     ],
-    exclude: ['lucide-react'],
   },
 }) 

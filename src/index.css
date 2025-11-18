@@ -74,3 +74,11 @@
     to { transform: translateY(0); opacity: 1; }
   }
 }
+
+/* AppKit Modal Styling */
+w3m-modal {
+  --w3m-font-family: 'Inter', system-ui, sans-serif;
+  --w3m-accent: hsl(262 83% 58%);
+  --w3m-border-radius-master: 0.75rem;
+}
+

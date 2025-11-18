@@ -1,7 +1,6 @@
 import React from 'react';
 import { Wallet, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import { WalletService, type WalletState } from '@/lib/walletService';
 import { formatAddress, cn } from '@/lib/utils';
 
@@ -12,8 +11,6 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ walletState, walletService, className }) => {
-    const { toast } = useToast();
-
     const connectWallet = () => {
         walletService?.connectWallet();
     };

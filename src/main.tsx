@@ -1,18 +1,22 @@
 import './polyfills.ts';
 import './index.css';
-import React, { StrictMode } from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { AppKitProvider } from './components/providers/AppKitProvider';
 import App from './App.tsx';
-
+// Initialize AppKit configuration
+import './lib/appkit';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Failed to find the root element');
 
 createRoot(rootElement).render(
     <StrictMode>
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
+        <AppKitProvider>
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>
+        </AppKitProvider>
     </StrictMode>
 ); 

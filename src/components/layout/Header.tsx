@@ -1,23 +1,14 @@
 import React from 'react';
-import { Wallet, Calendar } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { WalletService, type WalletState } from '@/lib/walletService';
+import { Calendar } from 'lucide-react';
+import { useWalletInfo } from '@/lib/contracts';
 import { formatAddress, cn } from '@/lib/utils';
 
 interface HeaderProps {
-    walletState: WalletState;
-    walletService: WalletService | null;
     className?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ walletState, walletService, className }) => {
-    const connectWallet = () => {
-        walletService?.connectWallet();
-    };
-
-    const disconnectWallet = () => {
-        walletService?.disconnectWallet();
-    };
+const Header: React.FC<HeaderProps> = ({ className }) => {
+    const { address, balance, balanceSymbol, isConnected } = useWalletInfo();
 
     return (
         <header className={cn('bg-background border-b border-border', className)}>
@@ -32,31 +23,16 @@ const Header: React.FC<HeaderProps> = ({ walletState, walletService, className }
                 </div>
 
                 <div className="flex items-center space-x-4">
-                    {walletState.account ? (
+                    {isConnected && address && (
                         <div className="flex items-center space-x-3">
-                            <div className="bg-muted px-3 py-1.5 rounded-full text-sm">
-                                {formatAddress(walletState.account)}
+                            <div className="text-sm text-muted-foreground">
+                                <div className="font-semibold text-foreground">{balance} {balanceSymbol}</div>
+                                <div className="text-xs">{formatAddress(address)}</div>
                             </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={disconnectWallet}
-                                disabled={walletState.isConnecting}
-                            >
-                                <Wallet className="w-4 h-4 mr-2" />
-                                Disconnect
-                            </Button>
                         </div>
-                    ) : (
-                        <Button
-                            onClick={connectWallet}
-                            disabled={walletState.isConnecting}
-                            className="bg-primary hover:bg-primary/90"
-                        >
-                            <Wallet className="w-4 h-4 mr-2" />
-                            {walletState.isConnecting ? 'Connecting...' : 'Connect Wallet'}
-                        </Button>
                     )}
+                    {/* AppKit web component - handles connect/disconnect automatically */}
+                    <appkit-button />
                 </div>
             </div>
         </header>

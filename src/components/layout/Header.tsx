@@ -1,15 +1,12 @@
 import React from 'react';
 import { Calendar } from 'lucide-react';
-import { useWalletInfo } from '@/lib/contracts';
-import { formatAddress, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 interface HeaderProps {
     className?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({ className }) => {
-    const { address, balance, balanceSymbol, isConnected } = useWalletInfo();
-
     return (
         <header className={cn('bg-background border-b border-border', className)}>
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -23,15 +20,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                 </div>
 
                 <div className="flex items-center space-x-4">
-                    {isConnected && address && (
-                        <div className="flex items-center space-x-3">
-                            <div className="text-sm text-muted-foreground">
-                                <div className="font-semibold text-foreground">{balance} {balanceSymbol}</div>
-                                <div className="text-xs">{formatAddress(address)}</div>
-                            </div>
-                        </div>
-                    )}
-                    {/* AppKit web component - handles connect/disconnect automatically */}
+                    {/* AppKit web component - handles connect/disconnect and wallet info */}
                     <appkit-button />
                 </div>
             </div>

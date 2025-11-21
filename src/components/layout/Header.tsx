@@ -1,12 +1,17 @@
 import React from 'react';
-import { Calendar } from 'lucide-react';
+import { Calendar, Moon, Sun } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { useTheme } from '@/hooks/useTheme';
 
 interface HeaderProps {
     className?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({ className }) => {
+    const { theme, toggleTheme } = useTheme();
+    const isDark = theme === 'dark';
+
     return (
         <header className={cn('bg-background border-b border-border', className)}>
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -20,6 +25,15 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                 </div>
 
                 <div className="flex items-center space-x-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Toggle color theme"
+                        onClick={toggleTheme}
+                        className="rounded-full"
+                    >
+                        {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                    </Button>
                     {/* AppKit web component - handles connect/disconnect and wallet info */}
                     <appkit-button />
                 </div>

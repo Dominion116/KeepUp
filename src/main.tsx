@@ -14,12 +14,12 @@ if (!rootElement) throw new Error('Failed to find the root element');
 
 createRoot(rootElement).render(
     <StrictMode>
-        <AppKitProvider>
-            <ThemeProvider>
+        <ThemeProvider>
+            <AppKitProvider>
                 <BrowserRouter>
                     <App />
                 </BrowserRouter>
-            </ThemeProvider>
-        </AppKitProvider>
+            </AppKitProvider>
+        </ThemeProvider>
     </StrictMode>
 ); 

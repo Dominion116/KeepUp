@@ -28,7 +28,8 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                     <Button
                         variant="ghost"
                         size="icon"
-                        aria-label="Toggle color theme"
+                        aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+                        title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
                         onClick={toggleTheme}
                         className="rounded-full"
                     >

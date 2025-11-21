@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { getNetworkConfig} from '@/lib/config';
-import { getCeloBalance } from '@/lib/tokenService';
+import { getBaseBalance } from '@/lib/tokenService';
 
 const getCurrentNetworkConfig = () => {
     const config = getNetworkConfig();
@@ -56,7 +56,7 @@ export class WalletService {
         this.updateState({ isLoadingBalance: true });
         try {
             const currentConfig = getCurrentNetworkConfig();
-            const balance = await getCeloBalance(address, parseInt(currentConfig.chainId, 16));
+            const balance = await getBaseBalance(address, parseInt(currentConfig.chainId, 16));
 
             this.updateState({ 
                 balance: parseFloat(balance).toFixed(4),

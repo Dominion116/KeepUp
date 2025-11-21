@@ -1,9 +1,9 @@
 import { ethers } from 'ethers';
-import { getNetworkConfig, CELO_MAINNET_CONFIG, CELO_TESTNET_CONFIG } from './config';
+import { getNetworkConfig, BASE_MAINNET_CONFIG, BASE_TESTNET_CONFIG } from './config';
 
 export const providers: { [chainId: number]: ethers.providers.JsonRpcProvider } = {};
-providers[CELO_MAINNET_CONFIG.chainId] = new ethers.providers.JsonRpcProvider(CELO_MAINNET_CONFIG.rpcUrl);
-providers[CELO_TESTNET_CONFIG.chainId] = new ethers.providers.JsonRpcProvider(CELO_TESTNET_CONFIG.rpcUrl);
+providers[BASE_MAINNET_CONFIG.chainId] = new ethers.providers.JsonRpcProvider(BASE_MAINNET_CONFIG.rpcUrl);
+providers[BASE_TESTNET_CONFIG.chainId] = new ethers.providers.JsonRpcProvider(BASE_TESTNET_CONFIG.rpcUrl);
 
 export function formatTokenAmount(amount: string | number, precision: number = 18): string {
     if (
@@ -52,7 +52,7 @@ export const scientificToDecimal = (num: string | number): string => {
     return numStr;
 };
 
-export const getCeloBalance = async (walletAddress: string, chainId?: number): Promise<string> => {
+export const getBaseBalance = async (walletAddress: string, chainId?: number): Promise<string> => {
     try {
         const currentConfig = getNetworkConfig();
         const targetChainId = chainId || currentConfig.chainId;
@@ -84,7 +84,7 @@ export const isValidAddress = (address: string): boolean => {
 export default {
     providers,
     isValidAddress,
-    getCeloBalance,
+    getBaseBalance,
     formatTokenAmount,
     scientificToDecimal,
 };

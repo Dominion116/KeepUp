@@ -16,7 +16,7 @@ const Home: React.FC = () => {
 
     const progress = (tasks.filter(t => t.completed).length / tasks.length) * 100;
     const streak = 7;
-    const pendingReward = '0.05 CELO';
+    const pendingReward = '0.05 ETH';
 
     return (
         <div className="container mx-auto px-4 py-6 max-w-4xl">

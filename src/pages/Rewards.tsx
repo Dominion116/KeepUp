@@ -5,12 +5,12 @@ import { Gift, History, Coins } from 'lucide-react';
 
 const Rewards: React.FC = () => {
     // Mock data
-    const tokenBalance = '2.45 CELO';
-    const pendingReward = '0.05 CELO';
+    const tokenBalance = '2.45 ETH';
+    const pendingReward = '0.05 ETH';
     const rewardHistory = [
-        { date: '2024-01-15', amount: '0.05 CELO', streak: 5 },
-        { date: '2024-01-14', amount: '0.05 CELO', streak: 4 },
-        { date: '2024-01-13', amount: '0.05 CELO', streak: 3 },
+        { date: '2024-01-15', amount: '0.05 ETH', streak: 5 },
+        { date: '2024-01-14', amount: '0.05 ETH', streak: 4 },
+        { date: '2024-01-13', amount: '0.05 ETH', streak: 3 },
     ];
 
     return (

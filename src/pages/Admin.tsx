@@ -20,7 +20,7 @@ const Admin: React.FC = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="daily-reward">Daily Base Reward (CELO)</Label>
+                            <Label htmlFor="daily-reward">Daily Base Reward (ETH)</Label>
                             <Input
                                 id="daily-reward"
                                 type="number"
@@ -74,7 +74,7 @@ const Admin: React.FC = () => {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center justify-between">
-                            <div className="text-2xl font-bold text-primary">12.75 CELO</div>
+                            <div className="text-2xl font-bold text-primary">12.75 ETH</div>
                             <Button variant="outline">
                                 <Download size={16} className="mr-2" />
                                 Withdraw Funds

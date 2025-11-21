@@ -1,40 +1,40 @@
 export const CHAIN_IDS = {
-  celoMainnet: 42220,
-  celoTestnet: 11142220,
+  baseMainnet: 8453,
+  baseTestnet: 84532,
 };
 
 export const RPC_URLS = {
-  [CHAIN_IDS.celoMainnet]: 'https://forno.celo.org',
-  [CHAIN_IDS.celoTestnet]: 'https://forno.celo-sepolia.celo-testnet.org',
+  [CHAIN_IDS.baseMainnet]: 'https://mainnet.base.org',
+  [CHAIN_IDS.baseTestnet]: 'https://sepolia.base.org',
 };
 
 export const BLOCK_EXPLORERS = {
-  [CHAIN_IDS.celoMainnet]: 'https://explorer.celo.org',
-  [CHAIN_IDS.celoTestnet]: 'https://celo-sepolia.blockscout.com',
+  [CHAIN_IDS.baseMainnet]: 'https://basescan.org',
+  [CHAIN_IDS.baseTestnet]: 'https://sepolia.basescan.org',
 };
 
-export const CELO_MAINNET_CONFIG = {
-  chainId: 42220,
-  name: 'Celo',
-  ticker: 'CELO',
+export const BASE_MAINNET_CONFIG = {
+  chainId: CHAIN_IDS.baseMainnet,
+  name: 'Base',
+  ticker: 'ETH',
   atomicUnit: 'wei',
   decimals: 18,
-  rpcUrl: 'https://forno.celo.org',
-  explorerUrl: 'https://explorer.celo.org'
+  rpcUrl: RPC_URLS[CHAIN_IDS.baseMainnet],
+  explorerUrl: BLOCK_EXPLORERS[CHAIN_IDS.baseMainnet]
 }
 
-export const CELO_TESTNET_CONFIG = {
-  chainId: 11142220,
-  name: 'Celo Sepolia',
-  ticker: 'CELO',
+export const BASE_TESTNET_CONFIG = {
+  chainId: CHAIN_IDS.baseTestnet,
+  name: 'Base Sepolia',
+  ticker: 'ETH',
   atomicUnit: 'wei',
   decimals: 18,
-  rpcUrl: 'https://forno.celo-sepolia.celo-testnet.org',
-  explorerUrl: 'https://celo-sepolia.blockscout.com'
+  rpcUrl: RPC_URLS[CHAIN_IDS.baseTestnet],
+  explorerUrl: BLOCK_EXPLORERS[CHAIN_IDS.baseTestnet]
 }
 
-export type NetworkConfig = typeof CELO_TESTNET_CONFIG
+export type NetworkConfig = typeof BASE_TESTNET_CONFIG
 
 export const getNetworkConfig = (): NetworkConfig => {
-  return CELO_TESTNET_CONFIG
+  return BASE_TESTNET_CONFIG
 }

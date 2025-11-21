@@ -8,7 +8,7 @@ const Profile: React.FC = () => {
     const userStats = {
         totalStreak: 7,
         longestStreak: 12,
-        totalRewards: '2.45 CELO',
+        totalRewards: '2.45 ETH',
         tasksCompleted: 42,
     };
 

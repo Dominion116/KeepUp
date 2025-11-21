@@ -33,8 +33,10 @@ export const BASE_TESTNET_CONFIG = {
   explorerUrl: BLOCK_EXPLORERS[CHAIN_IDS.baseTestnet]
 }
 
-export type NetworkConfig = typeof BASE_TESTNET_CONFIG
+export type NetworkConfig = typeof BASE_MAINNET_CONFIG
 
 export const getNetworkConfig = (): NetworkConfig => {
-  return BASE_TESTNET_CONFIG
+  return BASE_MAINNET_CONFIG
 }
+
+export const KEEPUP_FACTORY_ADDRESS = '0x6bc42F70639cC7B64501dCF7Ee69B06628AAf1BA' as `0x${string}`

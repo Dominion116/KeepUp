@@ -48,12 +48,16 @@ const Tasks: React.FC = () => {
 
   const chainTasks: ChainTask[] = useMemo(() => {
     if (!tasksQuery.data || !Array.isArray(tasksQuery.data)) return []
-    return (tasksQuery.data as any[]).map((task) => ({
-      id: BigInt(task.id ?? task[0] ?? 0n),
-      name: (task.name ?? task[1] ?? '') as string,
-      active: Boolean(task.active ?? task[2]),
-      createdAt: BigInt(task.createdAt ?? task[3] ?? 0n),
-    }))
+    return (tasksQuery.data as unknown[]).map((task: unknown) => {
+      const taskObj = task as Record<string, unknown>
+      const taskArr = task as unknown[]
+      return {
+        id: BigInt((taskObj.id || taskArr[0] || 0) as string | number | bigint),
+        name: ((taskObj.name || taskArr[1] || '') as string),
+        active: Boolean(taskObj.active ?? taskArr[2]),
+        createdAt: BigInt((taskObj.createdAt || taskArr[3] || 0) as string | number | bigint),
+      }
+    })
   }, [tasksQuery.data])
 
   const actionableTasks = useMemo(() => chainTasks.filter((task) => task.active), [chainTasks])
@@ -198,10 +202,14 @@ const Tasks: React.FC = () => {
           await refreshTasks()
           const updatedTasks = await tasksQuery.refetch()
           if (updatedTasks.data) {
-            const tasks = (updatedTasks.data as any[]).map((task) => ({
-              id: BigInt(task.id ?? task[0] ?? 0n),
-              name: (task.name ?? task[1] ?? '') as string,
-            }))
+            const tasks = (updatedTasks.data as unknown[]).map((task: unknown) => {
+              const taskObj = task as Record<string, unknown>
+              const taskArr = task as unknown[]
+              return {
+                id: BigInt((taskObj.id || taskArr[0] || 0) as string | number | bigint),
+                name: ((taskObj.name || taskArr[1] || '') as string),
+              }
+            })
             const newTaskEntry = tasks.find(t => t.name === newTask.trim())
             if (newTaskEntry) {
               setTaskCategory(newTaskEntry.id, selectedCategory)
@@ -454,12 +462,13 @@ const Tasks: React.FC = () => {
                           disabled={!task.active || isWorking || !hasDeployment}
                           className="text-destructive hover:text-destructive/90"
                         >
-                        {isWorking && pendingAction === 'remove' ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 size={16} />
-                        )}
-                      </Button>
+                          {isWorking && pendingAction === 'remove' ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 size={16} />
+                          )}
+                        </Button>
+                      </div>
                     </div>
                     
                     {/* Image Preview */}

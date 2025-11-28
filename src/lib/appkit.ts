@@ -1,7 +1,6 @@
 import { createAppKit } from '@reown/appkit/react'
-import { WagmiProvider } from 'wagmi'
 import { mainnet, arbitrum, base, polygon, sepolia } from '@reown/appkit/networks'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
 
@@ -22,7 +21,7 @@ const networks = [mainnet, arbitrum, base, polygon, sepolia]
 
 // Create Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({
-  networks,
+  networks: networks as [typeof mainnet, ...typeof networks],
   projectId,
   ssr: false
 })
@@ -30,7 +29,7 @@ const wagmiAdapter = new WagmiAdapter({
 // Create the AppKit modal
 createAppKit({
   adapters: [wagmiAdapter],
-  networks,
+  networks: networks as [typeof mainnet, ...typeof networks],
   projectId,
   metadata,
   features: {
@@ -47,27 +46,6 @@ createAppKit({
     
     // Colors - Match your design system
     '--w3m-accent': 'hsl(262 83% 58%)', // Primary purple
-    '--w3m-color-mix': 'hsl(262 83% 58%)',
-    '--w3m-color-mix-strength': '40%',
-    
-    // Button styling - Primary button colors
-    '--w3m-color-fg-1': 'hsl(240 10% 3.9%)', // Foreground text
-    '--w3m-color-fg-2': 'hsl(240 5.3% 26.1%)',
-    '--w3m-color-bg-1': 'hsl(262 83% 58%)', // Primary purple background
-    '--w3m-color-bg-2': 'hsl(262 83% 68%)', // Lighter purple for secondary
-    '--w3m-color-bg-3': 'hsl(262 83% 50%)', // Darker purple for borders
-    
-    // Primary action button (matches your primary button style)
-    '--w3m-color-success': 'hsl(262 83% 58%)', // Primary purple
-    
-    // Button hover effect
-    '--w3m-color-overlay': 'rgba(133, 93, 205, 0.1)', // Purple with transparency
-    
-    // Text colors
-    '--w3m-color-fg-secondary': 'hsl(240 3.8% 46.1%)',
-    
-    // Border
-    '--w3m-color-border': 'hsl(240 5.9% 90%)',
   }
 })
 

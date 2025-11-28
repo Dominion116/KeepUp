@@ -75,12 +75,16 @@ const Home: React.FC = () => {
 
   const chainTasks: ChainTask[] = useMemo(() => {
     if (!tasksQuery.data || !Array.isArray(tasksQuery.data)) return []
-    return (tasksQuery.data as any[]).map((task) => ({
-      id: BigInt(task.id ?? task[0] ?? 0n),
-      name: (task.name ?? task[1] ?? '') as string,
-      active: Boolean(task.active ?? task[2]),
-      createdAt: BigInt(task.createdAt ?? task[3] ?? 0n),
-    }))
+    return (tasksQuery.data as unknown[]).map((task: unknown) => {
+      const taskObj = task as Record<string, unknown>
+      const taskArr = task as unknown[]
+      return {
+        id: BigInt((taskObj.id || taskArr[0] || 0) as string | number | bigint),
+        name: ((taskObj.name || taskArr[1] || '') as string),
+        active: Boolean(taskObj.active ?? taskArr[2]),
+        createdAt: BigInt((taskObj.createdAt || taskArr[3] || 0) as string | number | bigint),
+      }
+    })
   }, [tasksQuery.data])
 
   const activeTasks = useMemo(() => chainTasks.filter((task) => task.active), [chainTasks])

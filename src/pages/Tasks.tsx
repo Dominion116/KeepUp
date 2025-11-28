@@ -3,12 +3,14 @@ import { usePublicClient, useReadContract, useReadContracts, useWriteContract } 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { CheckCircle, Loader2, Plus, Trash2 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { CheckCircle, Loader2, Plus, Trash2, Filter } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useUserKeepUpContract } from '@/hooks/useUserKeepUpContract'
 import { KEEPUP_ABI } from '@/lib/keepUp'
 import { ZERO_ADDRESS, getCurrentUnixDay } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import { ALL_CATEGORIES, getTaskCategory, setTaskCategory, getCategoryConfig, type TaskCategory } from '@/lib/categories'
 
 type ChainTask = {
   id: bigint
@@ -19,6 +21,8 @@ type ChainTask = {
 
 const Tasks: React.FC = () => {
   const [newTask, setNewTask] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<TaskCategory | null>(null)
+  const [filterCategory, setFilterCategory] = useState<TaskCategory | 'all'>('all')
   const [isAdding, setIsAdding] = useState(false)
   const [pendingTaskId, setPendingTaskId] = useState<bigint | null>(null)
   const [pendingAction, setPendingAction] = useState<'complete' | 'remove' | null>(null)
@@ -48,6 +52,11 @@ const Tasks: React.FC = () => {
   }, [tasksQuery.data])
 
   const actionableTasks = useMemo(() => chainTasks.filter((task) => task.active), [chainTasks])
+
+  const filteredTasks = useMemo(() => {
+    if (filterCategory === 'all') return chainTasks
+    return chainTasks.filter((task) => getTaskCategory(task.id) === filterCategory)
+  }, [chainTasks, filterCategory])
 
   const statusConfigs = useMemo(() => {
     if (!address || !contractAddress) return []
@@ -118,9 +127,26 @@ const Tasks: React.FC = () => {
       })
       toast({ title: 'Task submitted', description: hash })
       if (publicClient) {
-        await publicClient.waitForTransactionReceipt({ hash })
+        const receipt = await publicClient.waitForTransactionReceipt({ hash })
+        // After successful transaction, save category mapping
+        if (selectedCategory && receipt.status === 'success') {
+          // Get the new task ID from the tasks list after refresh
+          await refreshTasks()
+          const updatedTasks = await tasksQuery.refetch()
+          if (updatedTasks.data) {
+            const tasks = (updatedTasks.data as any[]).map((task) => ({
+              id: BigInt(task.id ?? task[0] ?? 0n),
+              name: (task.name ?? task[1] ?? '') as string,
+            }))
+            const newTaskEntry = tasks.find(t => t.name === newTask.trim())
+            if (newTaskEntry) {
+              setTaskCategory(newTaskEntry.id, selectedCategory)
+            }
+          }
+        }
       }
       setNewTask('')
+      setSelectedCategory(null)
       await refreshTasks()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to add task.'
@@ -221,12 +247,56 @@ const Tasks: React.FC = () => {
               </p>
             )}
 
+            {/* Category Filter */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Button
+                variant={filterCategory === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFilterCategory('all')}
+                className="h-8"
+              >
+                All
+              </Button>
+              {ALL_CATEGORIES.map((cat) => (
+                <Button
+                  key={cat.id}
+                  variant={filterCategory === cat.id ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFilterCategory(cat.id)}
+                  className="h-8"
+                >
+                  {cat.label}
+                </Button>
+              ))}
+            </div>
+
+            {/* Category Selection for New Task */}
+            {newTask.trim() && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm text-muted-foreground">Category:</span>
+                {ALL_CATEGORIES.map((cat) => (
+                  <Button
+                    key={cat.id}
+                    variant={selectedCategory === cat.id ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className="h-7 text-xs"
+                  >
+                    {cat.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+
             {/* Tasks List */}
             <div className="space-y-2">
-              {chainTasks.map((task) => {
+              {filteredTasks.map((task) => {
                 const isCompleted = completedTaskIds.has(task.id)
                 const isWorking = pendingTaskId === task.id
                 const disableComplete = !task.active || isCompleted || isWorking
+                const category = getTaskCategory(task.id)
+                const categoryConfig = getCategoryConfig(category)
                 return (
                   <div
                     key={task.id.toString()}
@@ -235,9 +305,14 @@ const Tasks: React.FC = () => {
                       !task.active && 'opacity-60'
                     )}
                   >
-                    <div>
-                      <div className="font-medium flex items-center gap-2">
+                    <div className="flex-1">
+                      <div className="font-medium flex items-center gap-2 flex-wrap">
                         {task.name}
+                        {categoryConfig && (
+                          <Badge className={cn(categoryConfig.bgColor, categoryConfig.color, 'border-0')}>
+                            {categoryConfig.label}
+                          </Badge>
+                        )}
                         {isCompleted && <CheckCircle className="h-4 w-4 text-green-500" />}
                       </div>
                       <p className="text-xs text-muted-foreground">
@@ -275,9 +350,9 @@ const Tasks: React.FC = () => {
               })}
             </div>
 
-            {chainTasks.length === 0 && isConnected && hasDeployment && !isLoading && (
+            {filteredTasks.length === 0 && isConnected && hasDeployment && !isLoading && (
               <div className="text-center text-muted-foreground py-8">
-                <p>No habits yet. Add your first habit to get started!</p>
+                <p>{filterCategory === 'all' ? 'No habits yet. Add your first habit to get started!' : `No ${filterCategory} habits found.`}</p>
               </div>
             )}
           </div>

@@ -5,12 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
 import { Calendar, CheckCircle, Loader2, Trophy } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
 import { useUserKeepUpContract } from '@/hooks/useUserKeepUpContract'
 import { KEEPUP_ABI } from '@/lib/keepUp'
 import { ZERO_ADDRESS, getCurrentUnixDay } from '@/lib/constants'
+import { getTaskCategory, getCategoryConfig } from '@/lib/categories'
 
 type ChainTask = {
   id: bigint
@@ -23,7 +25,7 @@ const Home: React.FC = () => {
   const { toast } = useToast()
   const publicClient = usePublicClient()
   const { writeContractAsync, isPending: isClaiming } = useWriteContract()
-  const { address, isConnected, isConnecting, contractAddress, hasDeployment, isLoadingContracts } =
+  const { address, isConnected, contractAddress, hasDeployment, isLoadingContracts } =
     useUserKeepUpContract()
 
   const keepUpAddress = contractAddress ?? ZERO_ADDRESS
@@ -117,6 +119,31 @@ const Home: React.FC = () => {
 
   const completedCount = completedTaskIds.size
   const progress = activeTasks.length > 0 ? (completedCount / activeTasks.length) * 100 : 0
+
+  // Category breakdown
+  const categoryStats = useMemo(() => {
+    const stats: Record<string, { total: number; completed: number; label: string; icon: string; color: string; bgColor: string }> = {}
+    activeTasks.forEach((task) => {
+      const category = getTaskCategory(task.id)
+      const config = getCategoryConfig(category)
+      const key = category || 'uncategorized'
+      if (!stats[key]) {
+        stats[key] = {
+          total: 0,
+          completed: 0,
+          label: config?.label || 'Uncategorized',
+          icon: config?.icon || '📋',
+          color: config?.color || 'text-gray-700',
+          bgColor: config?.bgColor || 'bg-gray-100',
+        }
+      }
+      stats[key].total += 1
+      if (completedTaskIds.has(task.id)) {
+        stats[key].completed += 1
+      }
+    })
+    return Object.values(stats)
+  }, [activeTasks, completedTaskIds])
 
   const streak = Number(streakValue)
   const bonusPercent = Number(bonusPercentQuery.data ?? 0n)
@@ -226,6 +253,8 @@ const Home: React.FC = () => {
             <div className="space-y-3">
               {activeTasks.map((task) => {
                 const isCompleted = completedTaskIds.has(task.id)
+                const category = getTaskCategory(task.id)
+                const categoryConfig = getCategoryConfig(category)
                 return (
                   <div
                     key={task.id.toString()}
@@ -239,9 +268,16 @@ const Home: React.FC = () => {
                       disabled
                       className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                     />
-                    <span className={cn('flex-1', isCompleted && 'line-through text-muted-foreground')}>
-                      {task.name}
-                    </span>
+                    <div className="flex-1 flex items-center gap-2 flex-wrap">
+                      <span className={cn('', isCompleted && 'line-through text-muted-foreground')}>
+                        {task.name}
+                      </span>
+                      {categoryConfig && (
+                        <Badge className={cn(categoryConfig.bgColor, categoryConfig.color, 'border-0 text-[10px] py-0 px-1.5')}>
+                          {categoryConfig.label}
+                        </Badge>
+                      )}
+                    </div>
                     {isCompleted && <CheckCircle className="w-4 h-4 text-green-500" />}
                   </div>
                 )
@@ -294,6 +330,32 @@ const Home: React.FC = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Category Breakdown */}
+        {categoryStats.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Categories</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {categoryStats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className={cn('p-3 rounded-lg', stat.bgColor)}
+                  >
+                    <div className="mb-1">
+                      <span className={cn('text-sm font-medium', stat.color)}>{stat.label}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {stat.completed}/{stat.total} completed
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )

@@ -1,16 +1,17 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useRef } from 'react'
 import { usePublicClient, useReadContract, useReadContracts, useWriteContract } from 'wagmi'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle, Loader2, Plus, Trash2, Filter } from 'lucide-react'
+import { CheckCircle, Loader2, Plus, Trash2, Filter, Camera, Image as ImageIcon, Eye } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useUserKeepUpContract } from '@/hooks/useUserKeepUpContract'
 import { KEEPUP_ABI } from '@/lib/keepUp'
 import { ZERO_ADDRESS, getCurrentUnixDay } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { ALL_CATEGORIES, getTaskCategory, setTaskCategory, getCategoryConfig, type TaskCategory } from '@/lib/categories'
+import { uploadToIPFS, addTaskProof, getTaskProof } from '@/lib/ipfsService'
 
 type ChainTask = {
   id: bigint
@@ -26,6 +27,10 @@ const Tasks: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false)
   const [pendingTaskId, setPendingTaskId] = useState<bigint | null>(null)
   const [pendingAction, setPendingAction] = useState<'complete' | 'remove' | null>(null)
+  const [uploadingProof, setUploadingProof] = useState<bigint | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   const publicClient = usePublicClient()
   const { writeContractAsync } = useWriteContract()
@@ -113,6 +118,65 @@ const Tasks: React.FC = () => {
     return true
   }
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, taskId: bigint) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Invalid file type',
+          description: 'Please select an image file',
+          variant: 'destructive',
+        })
+        return
+      }
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        toast({
+          title: 'File too large',
+          description: 'Please select an image smaller than 10MB',
+          variant: 'destructive',
+        })
+        return
+      }
+      setSelectedFile(file)
+      setPendingTaskId(taskId)
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleUploadProof = async (taskId: bigint) => {
+    if (!selectedFile) return
+
+    try {
+      setUploadingProof(taskId)
+      const ipfsUrl = await uploadToIPFS(selectedFile)
+      addTaskProof(taskId, ipfsUrl, selectedFile.name)
+      
+      toast({
+        title: 'Proof uploaded',
+        description: 'Your proof has been saved to IPFS',
+      })
+      
+      setSelectedFile(null)
+      setPreviewUrl(null)
+      setPendingTaskId(null)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to upload proof'
+      toast({
+        title: 'Upload failed',
+        description: message,
+        variant: 'destructive',
+      })
+    } finally {
+      setUploadingProof(null)
+    }
+  }
+
   const handleAddTask = async () => {
     if (!newTask.trim()) return
     if (!ensureReady()) return
@@ -172,6 +236,12 @@ const Tasks: React.FC = () => {
       if (publicClient) {
         await publicClient.waitForTransactionReceipt({ hash })
       }
+      
+      // If user has uploaded a proof, save it after successful completion
+      if (selectedFile && pendingTaskId === taskId) {
+        await handleUploadProof(taskId)
+      }
+      
       await refreshTasks()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to complete task.'
@@ -297,47 +367,93 @@ const Tasks: React.FC = () => {
                 const disableComplete = !task.active || isCompleted || isWorking
                 const category = getTaskCategory(task.id)
                 const categoryConfig = getCategoryConfig(category)
+                const taskProof = getTaskProof(task.id)
+                const hasSelectedProof = selectedFile && pendingTaskId === task.id
+                const isUploading = uploadingProof === task.id
                 return (
                   <div
                     key={task.id.toString()}
                     className={cn(
-                      'flex flex-col gap-3 rounded-lg border border-border p-3 md:flex-row md:items-center md:justify-between',
+                      'flex flex-col gap-3 rounded-lg border border-border p-3',
                       !task.active && 'opacity-60'
                     )}
                   >
-                    <div className="flex-1">
-                      <div className="font-medium flex items-center gap-2 flex-wrap">
-                        {task.name}
-                        {categoryConfig && (
-                          <Badge className={cn(categoryConfig.bgColor, categoryConfig.color, 'border-0')}>
-                            {categoryConfig.label}
-                          </Badge>
-                        )}
-                        {isCompleted && <CheckCircle className="h-4 w-4 text-green-500" />}
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="font-medium flex items-center gap-2 flex-wrap">
+                          {task.name}
+                          {categoryConfig && (
+                            <Badge className={cn(categoryConfig.bgColor, categoryConfig.color, 'border-0')}>
+                              {categoryConfig.label}
+                            </Badge>
+                          )}
+                          {isCompleted && <CheckCircle className="h-4 w-4 text-green-500" />}
+                          {taskProof && (
+                            <Badge variant="outline" className="text-xs gap-1">
+                              <ImageIcon className="h-3 w-3" />
+                              Verified
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {task.active ? 'Active' : 'Inactive'} · Created {formatDate(task.createdAt)}
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {task.active ? 'Active' : 'Inactive'} · Created {formatDate(task.createdAt)}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        disabled={disableComplete}
-                        onClick={() => handleCompleteTask(task.id)}
-                      >
-                        {isWorking && pendingAction === 'complete' ? (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : null}
-                        {isCompleted ? 'Completed' : 'Complete today'}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveTask(task.id)}
-                        disabled={!task.active || isWorking || !hasDeployment}
-                        className="text-destructive hover:text-destructive/90"
-                      >
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {/* Photo Upload Button */}
+                        {!isCompleted && task.active && (
+                          <>
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleFileSelect(e, task.id)}
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={isWorking}
+                              className="gap-1"
+                            >
+                              <Camera className="h-4 w-4" />
+                              {hasSelectedProof ? 'Change' : 'Add Proof'}
+                            </Button>
+                          </>
+                        )}
+                        
+                        {/* View Proof Button */}
+                        {taskProof && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(taskProof.ipfsUrl, '_blank')}
+                            className="gap-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </Button>
+                        )}
+                        
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          disabled={disableComplete}
+                          onClick={() => handleCompleteTask(task.id)}
+                        >
+                          {isWorking && pendingAction === 'complete' ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : null}
+                          {isCompleted ? 'Completed' : 'Complete'}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveTask(task.id)}
+                          disabled={!task.active || isWorking || !hasDeployment}
+                          className="text-destructive hover:text-destructive/90"
+                        >
                         {isWorking && pendingAction === 'remove' ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
@@ -345,6 +461,39 @@ const Tasks: React.FC = () => {
                         )}
                       </Button>
                     </div>
+                    
+                    {/* Image Preview */}
+                    {hasSelectedProof && previewUrl && (
+                      <div className="mt-2 space-y-2">
+                        <img 
+                          src={previewUrl} 
+                          alt="Proof preview" 
+                          className="max-w-full h-48 object-cover rounded-lg"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => handleUploadProof(task.id)}
+                            disabled={isUploading}
+                            className="bg-primary hover:bg-primary/90"
+                          >
+                            {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Upload Proof
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedFile(null)
+                              setPreviewUrl(null)
+                              setPendingTaskId(null)
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )
               })}

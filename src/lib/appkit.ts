@@ -6,7 +6,11 @@ import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
 const queryClient = new QueryClient()
 
-const projectId = '3a0cf5425c16c97c478ab0aea10aff36'
+const projectId = import.meta.env.VITE_REOWN_PROJECT_ID
+
+if (!projectId) {
+  throw new Error('VITE_REOWN_PROJECT_ID is not set in environment variables')
+}
 
 // Create metadata object
 const metadata = {
